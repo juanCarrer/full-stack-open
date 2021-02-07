@@ -1,11 +1,11 @@
 import { Part } from '../Part'
 
-export const Content = ({ partList = [], exerciseList= [] }) => {
+export const Content = ({ partList = [] }) => {
 	return (
 	<div>
 	{
 		partList.map((item, i) => (
-			<Part key={`content-part-${i}`} part={item} exercise={exerciseList[i]}/>	
+			<Part key={`content-part-${i}`} partName={item.name} exercise={item.exercises}/>	
 		))
 	}
 </div>

@@ -1,1 +1,1 @@
-export const Part = ({ part, exercise }) => <p> {part} {exercise} </p>
+export const Part = ({ partName, exercise }) => <p> {partName} {exercise} </p>
