@@ -1,7 +1,12 @@
-export const Total = ({ text, exercisesList }) => {
+export const Total = ({ text, partsList }) => {
+
+	const calculateTotal = (list) => {
+		return list.reduce((accumulator, { exercises }) => accumulator + exercises, 0)
+	}
+
 	return (
 		<p>
-			{text} {exercisesList.reduce((accumulator, currentValue) => accumulator + currentValue)}
+			{text} {calculateTotal(partsList)}
 		</p>
 	)
 }

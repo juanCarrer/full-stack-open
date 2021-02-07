@@ -1,10 +1,10 @@
 import { Part } from '../Part'
 
-export const Content = ({ partList = [] }) => {
+export const Content = ({ partsList = [] }) => {
 	return (
 	<div>
 	{
-		partList.map((item, i) => (
+		partsList.map((item, i) => (
 			<Part key={`content-part-${i}`} partName={item.name} exercise={item.exercises}/>	
 		))
 	}
