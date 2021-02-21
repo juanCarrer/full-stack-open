@@ -8,8 +8,9 @@ const CoursePart = ({ name, exercises }) => {
 }
 
 const Course = ({ course = {} }) => {
+	const { parts = [], name } = course
 
-	const totalExercises = course.parts.reduce((a,b) => {
+	const totalExercises = parts.reduce((a,b) => {
 		if (a.exercises) {
 			return a.exercises + b.exercises
 		}
@@ -18,10 +19,10 @@ const Course = ({ course = {} }) => {
 
 	return (
 		<div>
-			<Header title={course.name} />
+			<Header title={name} />
 			<section>
 				{
-					course.parts && course.parts.map(item => {
+					parts && parts.map(item => {
 						return <CoursePart key={item.id} name={item.name} exercises={item.exercises} />
 					})
 				}
