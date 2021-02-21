@@ -6,7 +6,7 @@ const CoursePart = ({ name, exercises }) => {
 	return <p>{name} {exercises}</p>
 }
 
-export const Course = ({ course = {} }) => {
+export Course = ({ course = {} }) => {
 	const { parts = [], name } = course
 
 	const totalExercises = parts.reduce((a,b) => {
