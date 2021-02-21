@@ -1,5 +1,11 @@
 import React, { useState, Fragment } from 'react'
 
+const Statistic = ({ text, value }) => {
+	return (
+		<p>{text} {value}</p>
+	)
+}
+
 const Statistics = ({ good, neutral, bad, total }) => {
 
 	const calculateAverage = () => {
@@ -13,16 +19,20 @@ const Statistics = ({ good, neutral, bad, total }) => {
 
 	return (
 		<div>
-			<p>good {good}</p>
-			<p>neutral {neutral}</p>
-			<p>bad {bad}</p>
-			<p>all {total}</p>
-			<p>average {calculateAverage()}</p>
-			<p>positive {calculatePositive()}%</p>
+			<Statistic text='good' value={good}/>
+			<Statistic text='neutral' value={neutral}/>
+			<Statistic text='bad' value={bad}/>
+			<Statistic text='average' value={calculateAverage()}/>
+			<Statistic text='positive' value={`${calculatePositive()}%`}/>
 		</div>
 	)
 }
 
+export const Button = ({ title, handelClick }) => {
+	return (
+		<button onClick={handelClick}>{title}</button>
+	)
+}
 
 export const App = () => {
 	const [good, setGood] = useState(0)
@@ -35,9 +45,9 @@ export const App = () => {
 		<Fragment>
 			<div>
 				<h1>Give Feedback</h1>
-				<button onClick={() => setGood(good + 1)}>good</button>
-				<button onClick={() => setNeutral(neutral + 1)}>neutral</button>
-				<button onClick={() => setBad(bad + 1)}>bad</button>
+				<Button title='good' handelClick={() => setGood(good + 1)} />
+				<Button title='neutral' handelClick={() => setNeutral(neutral + 1)} />
+				<Button title='bad' handelClick={() => setBad(bad + 1)} />
 			</div>
 			<h1>Statics</h1>
 			{
