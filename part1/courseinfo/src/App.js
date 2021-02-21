@@ -1,8 +1,6 @@
 import React, { useState, Fragment } from 'react'
 
-const Statistics = ({ good, neutral, bad }) => {
-
-	const total = good + neutral + bad
+const Statistics = ({ good, neutral, bad, total }) => {
 
 	const calculateAverage = () => {
 		const score = good - bad
@@ -15,7 +13,6 @@ const Statistics = ({ good, neutral, bad }) => {
 
 	return (
 		<div>
-			<h1>Statics</h1>
 			<p>good {good}</p>
 			<p>neutral {neutral}</p>
 			<p>bad {bad}</p>
@@ -32,6 +29,8 @@ export const App = () => {
 	const [neutral, setNeutral] = useState(0)
 	const [bad, setBad] = useState(0)
 
+	const total = good + neutral + bad
+
 	return (
 		<Fragment>
 			<div>
@@ -40,7 +39,13 @@ export const App = () => {
 				<button onClick={() => setNeutral(neutral + 1)}>neutral</button>
 				<button onClick={() => setBad(bad + 1)}>bad</button>
 			</div>
-			<Statistics good={good} neutral={neutral} bad={bad} />			
+			<h1>Statics</h1>
+			{
+				total !== 0
+				? <Statistics good={good} neutral={neutral} bad={bad} total={total}/>	
+				: <p>no Feedback given</p>
+			}
+					
 		</Fragment>
 	)
 }
