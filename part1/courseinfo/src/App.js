@@ -6,6 +6,17 @@ export const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
 
+  const total = good + neutral + bad
+
+  const calculateAverage = () => {
+  	const score = good - bad
+  	return score / total 
+  }
+
+  const calculatePositive = () => {
+  	return good * 100 / total
+  }
+
   return (
     <Fragment>
     	<div>
@@ -19,6 +30,9 @@ export const App = () => {
     		<p>good {good}</p>
     		<p>neutral {neutral}</p>
     		<p>bad {bad}</p>
+    		<p>all {total}</p>
+    		<p>average {calculateAverage()}</p>
+    		<p>positive {calculatePositive()}%</p>
     	</div>
     </Fragment>
   )
