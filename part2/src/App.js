@@ -1,7 +1,11 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import axios from 'axios'
 
-const Countries = ({ countries }) => {
+const Countries = ({ countries, setFilter }) => {
+
+	const handleShowButton = (countryName) => {
+		setFilter(countryName)
+	}
 
 	if (countries.length > 10) {
 		return <p>Too many countries, specify another filter</p>
@@ -12,7 +16,12 @@ const Countries = ({ countries }) => {
 			<div>
 			{
 				countries.map(item => {
-					return <p key={item.name}>{item.name}</p>
+					return (
+						<div key={item.name}>
+							{item.name}
+							<button onClick={() => { handleShowButton(item.name) }}>show</button>
+						</div>
+					)
 				})
 			}
 			</div>
@@ -71,9 +80,9 @@ const App = () => {
 	return (
 		<Fragment>
 			<div>
-				find contries <input onChange={handleFindChange} />
+				find contries <input onChange={handleFindChange} value={searchCountry}/>
 			</div>
-			<Countries countries={filteredCountries} />
+			<Countries countries={filteredCountries} setFilter={setSearchCountry}/>
 		</Fragment>
 	)
 }
