@@ -1,119 +1,80 @@
-import React, { useState, useEffect } from 'react'
-import { getAllPersons } from './services/phonebook'
+import React, { useState, useEffect, Fragment } from 'react'
+import axios from 'axios'
 
-const Filter = ({ handleChange }) => {
-	return (
-		<div>
-			filter shown with <input onChange={handleChange}/>
-		</div>
-	)
-}
+const Countries = ({ countries }) => {
 
-const PersonForm = ({ handleSubmit, handleName, name, handleNumber, number }) => {
-	return (
-		<form onSubmit={handleSubmit}>
-			<div>
-				name: <input onChange={handleName} value={name}/>
-			</div>
-			<div>
-				number: <input onChange={handleNumber} value={number}/>
-			</div>
-			<div>
-				<button type='submit'>add</button>
-			</div>
-		</form>
-	)
-}
-
-const Persons = ({ persons = []}) => {
-
-	if (persons.length === 0) {
-		return <h3>no persons Found...</h3>
+	if (countries.length > 10) {
+		return <p>Too many countries, specify another filter</p>
 	}
 
-	return (
-		<div>
-		{
-			persons.map(item => ( 
-				<p key={item.name}>{item.name} {item.number}</p>
-			))
-		}
-		</div>
-	)
+	if (countries.length > 1 && countries.length <= 10) {
+		return (
+			<div>
+			{
+				countries.map(item => {
+					return <p key={item.name}>{item.name}</p>
+				})
+			}
+			</div>
+		)
+	}
+
+	if (countries.length === 1) {
+		return (
+			<div>
+				<h1>{countries[0].name}</h1>
+				 <p>capital {countries[0].capital}</p>
+				  <p>population {countries[0].population}</p>
+				  <h2>languages</h2>
+				  <ul>
+				  {
+				  	countries[0].languages.map(item => {
+				  		return <li key={item.name} >{item.name}</li>
+				  	})
+				  }
+				  </ul>
+				  <img src={countries[0].flag} alt={`${countries[0].name} flag`} width={125}/>
+			</div>
+		)
+	}
+
+	if (countries.length === 0 ) {
+		return <p>Country not found</p>
+	}
 }
 
+
+
 const App = () => {
-	const [persons, setPersons] = useState([])
-	const [newName, setNewName] = useState('')
-	const [newNumber, setNewNumber] = useState('')
-	const [filterKeyword, setFilterkeyword] = useState('')
-	const [filteredPersons, setFilteredPersons] = useState([])
+	const [searchCountry, setSearchCountry] = useState('')
+	const [listOfCountries, setListOfCountries] = useState([])
+	const [filteredCountries, setFilteredCountries] = useState([])
+
+	const handleFindChange = (event) => {
+		setSearchCountry(event.target.value)
+	}
 
 	useEffect(() => {
-		getAllPersons()
-			.then(data => {
-				setPersons(data)
-			})
-			.catch(errorMessage => {
-				console.error(errorMessage)
+		axios.get('https://restcountries.eu/rest/v2/all')
+			.then(response => {
+				setListOfCountries(response.data)
 			}) 
 	}, [])
 
 	useEffect(() => {
-		if (persons.length === 0 || !Array.isArray(persons)) return
-
-		const filtered = persons.filter(({name}) => {
-			return name.includes(filterKeyword)
+		const filtered = listOfCountries.filter(item => {
+			return item.name.includes(searchCountry)
 		})
-		setFilteredPersons(filtered)
-	}, [persons, filterKeyword])
-
-
-	const handleSubmit = (event) => {
-		event.preventDefault()
-		if (persons.some(item => item.name === newName)) {
-			alert(`${newName} is already added to phonebook`)
-			setNewName('')
-			setNewNumber('')
-			return
-		}
-
-		setPersons([...persons, { name: newName, number: newNumber }])
-		setNewName('')
-		setNewNumber('')
-	}
-
-	const handleNameChange = (event) => {
-		setNewName(event.target.value)
-	}
-
-	const handleNumberChange = (event) => {
-		setNewNumber(event.target.value)
-	}
-
-	const handleFilterkeywordChange = (event) => {
-		setFilterkeyword(event.target.value)
-	}
+		setFilteredCountries(filtered)
+	}, [listOfCountries, searchCountry])
 
 	return (
-		<div>
-			<h2>Phonebook</h2>
-			<Filter handleChange={handleFilterkeywordChange}/>
-
-			<h2>Add a new</h2>
-			
-			<PersonForm
-				handleSubmit={handleSubmit}
-				handleName={handleNameChange}
-				name={newName}
-				handleNumber={handleNumberChange}
-				number={newNumber}
-			/>
-
-			<h2>Numbers</h2>
-
-			<Persons persons={filteredPersons}/>
-		</div>
+		<Fragment>
+			<div>
+				find contries <input onChange={handleFindChange} />
+			</div>
+			<Countries countries={filteredCountries} />
+		</Fragment>
 	)
 }
 
