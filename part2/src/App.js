@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { getAllPersons } from './services/phonebook'
 
 const Filter = ({ handleChange }) => {
 	return (
@@ -25,6 +26,11 @@ const PersonForm = ({ handleSubmit, handleName, name, handleNumber, number }) =>
 }
 
 const Persons = ({ persons = []}) => {
+
+	if (persons.length === 0) {
+		return <h3>no persons Found...</h3>
+	}
+
 	return (
 		<div>
 		{
@@ -37,19 +43,31 @@ const Persons = ({ persons = []}) => {
 }
 
 const App = () => {
-	const [persons, setPersons] = useState([
-		{ name: 'Arto Hellas', number: '040-123456' },
-		{ name: 'Ada Lovelace', number: '39-44-5323523' },
-		{ name: 'Dan Abramov', number: '12-43-234345' },
-		{ name: 'Mary Poppendieck', number: '39-23-6423122' }
-	])
+	const [persons, setPersons] = useState([])
 	const [newName, setNewName] = useState('')
 	const [newNumber, setNewNumber] = useState('')
 	const [filterKeyword, setFilterkeyword] = useState('')
-	
-	const filteredPersons = persons.filter(({name}) => {
-		return name.includes(filterKeyword)
-	}) 
+	const [filteredPersons, setFilteredPersons] = useState([])
+
+	useEffect(() => {
+		getAllPersons()
+			.then(data => {
+				setPersons(data)
+			})
+			.catch(errorMessage => {
+				console.error(errorMessage)
+			}) 
+	}, [])
+
+	useEffect(() => {
+		if (persons.length === 0 || !Array.isArray(persons)) return
+
+		const filtered = persons.filter(({name}) => {
+			return name.includes(filterKeyword)
+		})
+		setFilteredPersons(filtered)
+	}, [persons, filterKeyword])
+
 
 	const handleSubmit = (event) => {
 		event.preventDefault()
