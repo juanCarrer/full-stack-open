@@ -1,8 +1,46 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import axios from 'axios'
 
-const Countries = ({ countries, setFilter }) => {
+const Weather = ({ capital }) => {
+	const [weatherData, setWeatherData] = useState({})
+	let isMounted = true
 
+	useEffect(() => {
+		axios.get(`http://api.weatherstack.com/current?access_key=${process.env.REACT_APP_WEATHER_ACCESS_KEY}&query=${capital}`)
+			.then(response => {
+				isMounted && setWeatherData(response.data)
+			})
+			.catch(err => {
+				console.error(err.message)
+			})
+
+			return () => {
+				isMounted = false
+			}
+	}, [capital])
+
+	if (Object.keys(weatherData).length === 0) {
+		return <h2>loading Weather...</h2>
+	}
+
+	return (
+		<div>
+			<h2>Weather in {capital}</h2>
+			<p>
+				<b>temperature: </b>
+				{weatherData.current.temperature} Celcius
+			</p>
+			<img src={weatherData.current.weather_icons[0]} alt='weather_icons' />
+			<p>
+				<b>wind: </b>
+				{weatherData.current.wind_speed} mph direction {weatherData.current.wind_dir}
+			</p>
+		</div>
+	)
+}
+
+
+const Countries = ({ countries, setFilter }) => {
 	const handleShowButton = (countryName) => {
 		setFilter(countryName)
 	}
@@ -43,6 +81,7 @@ const Countries = ({ countries, setFilter }) => {
 				  }
 				  </ul>
 				  <img src={countries[0].flag} alt={`${countries[0].name} flag`} width={125}/>
+				  <Weather capital={countries[0].capital}/>
 			</div>
 		)
 	}
