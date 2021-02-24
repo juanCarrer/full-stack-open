@@ -1,46 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { getAllPersons } from './services/phonebook'
-
-const Filter = ({ handleChange }) => {
-	return (
-		<div>
-			filter shown with <input onChange={handleChange}/>
-		</div>
-	)
-}
-
-const PersonForm = ({ handleSubmit, handleName, name, handleNumber, number }) => {
-	return (
-		<form onSubmit={handleSubmit}>
-			<div>
-				name: <input onChange={handleName} value={name}/>
-			</div>
-			<div>
-				number: <input onChange={handleNumber} value={number}/>
-			</div>
-			<div>
-				<button type='submit'>add</button>
-			</div>
-		</form>
-	)
-}
-
-const Persons = ({ persons = []}) => {
-
-	if (persons.length === 0) {
-		return <h3>no persons Found...</h3>
-	}
-
-	return (
-		<div>
-		{
-			persons.map(item => ( 
-				<p key={item.name}>{item.name} {item.number}</p>
-			))
-		}
-		</div>
-	)
-}
+import { getAllPersons, addPerson } from './services/phonebook'
+import { Filter } from './components/Phonebook/Filter'
+import { PersonForm } from './components/Phonebook/PersonForm'
+import { Persons } from './components/Phonebook/Persons'
 
 const App = () => {
 	const [persons, setPersons] = useState([])
@@ -76,9 +38,15 @@ const App = () => {
 			setNewName('')
 			setNewNumber('')
 			return
-		}
+		} 
 
-		setPersons([...persons, { name: newName, number: newNumber }])
+		addPerson({ name: newName, number: newNumber })
+			.then(response => {
+				setPersons([...persons, response])
+			})
+			.catch(errorMessage => {
+				console.error(errorMessage)
+			})
 		setNewName('')
 		setNewNumber('')
 	}
