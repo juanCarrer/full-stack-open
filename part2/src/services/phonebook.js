@@ -29,3 +29,13 @@ export const deletePerson = (id) => {
 			return err.message
 		})
 }
+
+export const updatePerson = (id, newData) => {
+	return axios.put(`http://localhost:3001/persons/${id}`, newData)
+		.then(response => {
+			return response
+		})
+		.catch(err => {
+			return err.message
+		})
+}
