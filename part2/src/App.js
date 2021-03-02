@@ -63,6 +63,10 @@ const App = () => {
 		setFilterkeyword(event.target.value)
 	}
 
+	const handleUpdatePersons = (newlist) => {
+		setPersons(newlist)
+	}
+
 	return (
 		<div>
 			<h2>Phonebook</h2>
@@ -80,7 +84,7 @@ const App = () => {
 
 			<h2>Numbers</h2>
 
-			<Persons persons={filteredPersons}/>
+			<Persons persons={filteredPersons} updatePersons={handleUpdatePersons}/>
 		</div>
 	)
 }

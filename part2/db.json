@@ -1,11 +1,6 @@
 {
   "persons": [
     {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": 1
-    },
-    {
       "name": "Ada Lovelace",
       "number": "39-44-5323523",
       "id": 2
@@ -21,24 +16,14 @@
       "id": 4
     },
     {
-      "name": "Juan Carrero",
-      "number": "2343-343-2",
-      "id": 5
-    },
-    {
       "name": "Daniel Martinez",
       "number": "435-33-2222",
       "id": 6
     },
     {
-      "name": "Jose Carrero",
-      "number": "23-2-3-4-2222",
+      "name": "Juan Carrero",
+      "number": "43-3-3-3",
       "id": 7
-    },
-    {
-      "name": "Andrea Manzo",
-      "number": "433-345-3",
-      "id": 8
     }
   ]
 }
