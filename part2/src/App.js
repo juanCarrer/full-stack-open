@@ -11,12 +11,13 @@ const App = () => {
 	const [newNumber, setNewNumber] = useState('')
 	const [filterKeyword, setFilterkeyword] = useState('')
 	const [filteredPersons, setFilteredPersons] = useState([])
-	const [notificationMessage, setNotificationMessage] = useState(null);
+	const [notificationMessage, setNotificationMessage] = useState(null)
+	const [notificationError, setNotificationError] = useState(false)
 
 	useEffect(() => {
 		getAllPersons()
-			.then(data => {
-				setPersons(data)
+			.then(response => {
+				setPersons(response.data)
 			})
 			.catch(errorMessage => {
 				console.error(errorMessage)
@@ -32,11 +33,15 @@ const App = () => {
 		setFilteredPersons(filtered)
 	}, [persons, filterKeyword])
 
-	const updateNotificationMessage = (newMessage) => {
+	const updateNotificationMessage = (newMessage, error = false) => {
+		if (error) {
+			setNotificationError(true)
+		}
 		setNotificationMessage(newMessage)
 
 		setTimeout(() => {
 			setNotificationMessage(null)
+			setNotificationError(false)
 		}, 5000)
 	}
 
@@ -47,12 +52,15 @@ const App = () => {
 		if (existingPerson) {
 			if(window.confirm(`${existingPerson.name} is already added to phonebook, replace the old number with a new one`)) {
 				updatePerson(existingPerson.id, {...existingPerson, number: newNumber})
-					.then(data => {
+					.then(response => {
+						const { data } = response
+						console.log(data)
 						updateNotificationMessage(`Updated number of ${data.name}`)
 						setPersons(persons.map(item => item.id === data.id ? data : item))
 					})
 					.catch(err => {
-						console.error(err)
+						updateNotificationMessage(`Information of ${existingPerson.name} has already been removed from server`, true)
+						setPersons(persons.filter(item => item.id !== existingPerson.id))
 					})
 			}
 
@@ -63,8 +71,8 @@ const App = () => {
 
 		addPerson({ name: newName, number: newNumber })
 			.then(response => {
-				updateNotificationMessage(`Added ${response.name}`)
-				setPersons([...persons, response])
+				updateNotificationMessage(`Added ${response.data.name}`)
+				setPersons([...persons, response.data])
 			})
 			.catch(errorMessage => {
 				console.error(errorMessage)
@@ -92,8 +100,8 @@ const App = () => {
 	return (
 		<div>
 			<h2>Phonebook</h2>
-			<Notification message={notificationMessage} />
-			<Filter handleChange={handleFilterkeywordChange}/>
+			<Notification message={notificationMessage} error={notificationError}/>
+			<Filter handleChange={handleFilterkeywordChange} />
 
 			<h2>Add a new</h2>
 			
@@ -107,7 +115,7 @@ const App = () => {
 
 			<h2>Numbers</h2>
 
-			<Persons persons={filteredPersons} updatePersons={handleUpdatePersons}/>
+			<Persons persons={filteredPersons} updatePersons={handleUpdatePersons} />
 		</div>
 	)
 }
