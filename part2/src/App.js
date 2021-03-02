@@ -3,6 +3,7 @@ import { getAllPersons, addPerson, updatePerson } from './services/phonebook'
 import { Filter } from './components/Phonebook/Filter'
 import { PersonForm } from './components/Phonebook/PersonForm'
 import { Persons } from './components/Phonebook/Persons'
+import { Notification } from './components/Phonebook/Notification'
 
 const App = () => {
 	const [persons, setPersons] = useState([])
@@ -10,6 +11,7 @@ const App = () => {
 	const [newNumber, setNewNumber] = useState('')
 	const [filterKeyword, setFilterkeyword] = useState('')
 	const [filteredPersons, setFilteredPersons] = useState([])
+	const [notificationMessage, setNotificationMessage] = useState(null);
 
 	useEffect(() => {
 		getAllPersons()
@@ -30,6 +32,13 @@ const App = () => {
 		setFilteredPersons(filtered)
 	}, [persons, filterKeyword])
 
+	const updateNotificationMessage = (newMessage) => {
+		setNotificationMessage(newMessage)
+
+		setTimeout(() => {
+			setNotificationMessage(null)
+		}, 5000)
+	}
 
 	const handleSubmit = (event) => {
 		event.preventDefault()
@@ -38,8 +47,9 @@ const App = () => {
 		if (existingPerson) {
 			if(window.confirm(`${existingPerson.name} is already added to phonebook, replace the old number with a new one`)) {
 				updatePerson(existingPerson.id, {...existingPerson, number: newNumber})
-					.then(response => {
-						setPersons(persons.map(item => item.id === response.data.id ? response.data : item))
+					.then(data => {
+						updateNotificationMessage(`Updated number of ${data.name}`)
+						setPersons(persons.map(item => item.id === data.id ? data : item))
 					})
 					.catch(err => {
 						console.error(err)
@@ -53,6 +63,7 @@ const App = () => {
 
 		addPerson({ name: newName, number: newNumber })
 			.then(response => {
+				updateNotificationMessage(`Added ${response.name}`)
 				setPersons([...persons, response])
 			})
 			.catch(errorMessage => {
@@ -81,6 +92,7 @@ const App = () => {
 	return (
 		<div>
 			<h2>Phonebook</h2>
+			<Notification message={notificationMessage} />
 			<Filter handleChange={handleFilterkeywordChange}/>
 
 			<h2>Add a new</h2>
