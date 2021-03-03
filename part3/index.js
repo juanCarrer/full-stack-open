@@ -4,7 +4,15 @@ const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
-app.use(morgan('tiny'))
+
+morgan.token('body', (request, response) => {
+	if (request.method === 'POST') {
+		return JSON.stringify(request.body)
+	}
+	return ''
+})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 let persons = [
 	{
@@ -60,7 +68,7 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-	newPerson = request.body
+	newPerson = {...request.body}
 	
 	if (!newPerson.name || !newPerson.number) {
 		response.status(400).json({ error: 'name and number required' })
