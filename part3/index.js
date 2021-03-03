@@ -28,6 +28,13 @@ app.get('/api/persons', (require, response) => {
 	response.json(persons)
 })
 
+app.get('/info', (require, response) => {
+	response.send(`
+		<p>Phonebook has info for ${persons.length} persons</p>
+		<p>${new Date()}<p>
+	`)
+})
+
 
 const PORT = process.env.PORT || 3001
 
