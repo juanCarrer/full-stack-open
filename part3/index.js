@@ -57,12 +57,22 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-	newperson = request.body
-	newperson.id = Math.floor(Math.random() * 10000)
+	newPerson = request.body
 	
-	persons.push(newperson)
+	if (!newPerson.name || !newPerson.number) {
+		response.status(400).json({ error: 'name and number required' })
+		return
+	}
 
-	response.status(201).json(newperson)
+	if (persons.find(item => item.name === newPerson.name)) {
+		response.status(400).json({ error: 'name must be unique' })
+		return
+	}
+
+	newPerson.id = Math.floor(Math.random() * 10000)
+	persons.push(newPerson)
+
+	response.status(201).json(newPerson)
 })
 
 
