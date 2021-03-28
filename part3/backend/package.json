@@ -7,7 +7,7 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku": "cd.. cd.. git subtree push --prefix part3/backend part3-heroku-backend main"
+    "heroku": "cd.. cd.. git subtree push --prefix part3/backend part3-heroku main"
   },
   "keywords": [],
   "author": "",
