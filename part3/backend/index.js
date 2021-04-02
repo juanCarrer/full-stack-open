@@ -3,7 +3,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 const app = express()
-
+	console.log('visto desde terminal', {bj: "este es un texto desde termisnsla"})
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
