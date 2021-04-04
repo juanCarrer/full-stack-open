@@ -45,7 +45,6 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-
 	Person.findById(request.params.id)
 		.then(data => {
 			response.json(data)
@@ -64,22 +63,32 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-	newPerson = {...request.body}
+	newPersonData = {...request.body}
 	
-	if (!newPerson.name || !newPerson.number) {
+	if (!newPersonData.name || !newPersonData.number) {
 		response.status(400).json({ error: 'name and number required' })
 		return
 	}
 
-	if (persons.find(item => item.name === newPerson.name)) {
-		response.status(400).json({ error: 'name must be unique' })
-		return
-	}
+	// if (persons.find(item => item.name === newPersonData.name)) {
+	// 	response.status(400).json({ error: 'name must be unique' })
+	// 	return
+	// }
 
-	newPerson.id = Math.floor(Math.random() * 10000)
-	persons.push(newPerson)
+	const newperson = new Person({
+		name: newPersonData.name,
+		number: newPersonData.number
+	})
 
-	response.status(201).json(newPerson)
+	newperson.save()
+		.then(data => {
+			response.status(201).json(data)
+		})
+		.catch(e => {
+			console.error('error:', e.message)
+			response.status(500).json(newPerson)
+		})
+
 })
 
 
