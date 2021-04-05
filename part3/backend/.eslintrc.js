@@ -14,6 +14,6 @@ module.exports = {
     'linebreak-style': 0,
     semi: 0,
     'no-console': 0,
-    'comma-dangle': 0,
+    'comma-dangle': 0
   },
 };
