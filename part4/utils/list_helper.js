@@ -28,6 +28,19 @@ const IsAuthorOnArray = (array, author) => {
   return false
 }
 
+const findMaxByKey = (key, array) => {
+  let max = {}
+  array.reduce((accumulator, currentValue) => {
+    if (accumulator[key] > currentValue[key]) {
+      max = accumulator
+    } else {
+      max = currentValue
+    }
+    return currentValue
+  })
+  return max
+}
+
 const mostBlogs = (blogs) => {
   const authorsName = blogs.map(item => {
     return item.author
@@ -48,23 +61,39 @@ const mostBlogs = (blogs) => {
     }
   })
 
-  let max = {}
+  return findMaxByKey('blogs', authorsWithBlogs)
+}
 
-  authorsWithBlogs.reduce((accumulator, currentValue) => {
-    if (accumulator.blogs > currentValue.blogs) {
-      max = accumulator
-    } else {
-      max = currentValue
+const mostLikes = (blogs) => {
+  const authorsWithLikes = blogs.map(item => {
+    return {
+      author: item.author,
+      likes: item.likes
     }
-    return currentValue
   })
 
-  return max
+  let formatedLikes = []
+
+  authorsWithLikes.forEach(authorwithLikes => {
+    if (!IsAuthorOnArray(formatedLikes, authorwithLikes.author || formatedLikes.length === 0)) {
+      formatedLikes.push({ author: authorwithLikes.author, likes: authorwithLikes.likes })
+    } else {
+      formatedLikes = formatedLikes.map(item => {
+        if (item.author === authorwithLikes.author) {
+          return { author: authorwithLikes.author, likes: item.likes + authorwithLikes.likes }
+        }
+        return item
+      })
+    }
+  })
+
+  return findMaxByKey('likes', formatedLikes)
 }
 
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
