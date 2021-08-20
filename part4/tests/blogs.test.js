@@ -30,7 +30,7 @@ const initialBlogs = [
     likes: 10
   },
   {
-    title: 'sexto blog',
+    title: 'quito blog',
     author: 'jose carrero',
     url: 'http://blog',
     likes: 35
@@ -63,4 +63,27 @@ test('id as blog identifier', async () => {
   const response = await api.get('/api/blogs')
 
   expect(response.body[0].id).toBeDefined()
+})
+
+test('make post add a blog', async () => {
+  const postData = {
+    title: 'this is a test blog',
+    author: 'juan carrero',
+    likes: 0
+  }
+
+  const postResponse = await api
+    .post('/api/blogs')
+    .send(postData)
+    .expect(201)
+
+  const getResponse = await api
+    .get('/api/blogs')
+
+  const getResponseData = getResponse.body.map(item => {
+    return item.title
+  })
+
+  expect(postResponse.body.title).toBe(postData.title)
+  expect(getResponseData).toContain(postData.title)
 })
