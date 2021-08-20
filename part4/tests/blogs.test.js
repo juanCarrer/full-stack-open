@@ -52,9 +52,15 @@ test('correct number of notes', async () => {
     .expect(200)
     .expect('content-Type', /application\/json/)
 
-  expect(response.body.length).toBe(initialBlogs.length)
+  expect(response.body).toHaveLength(initialBlogs.length)
 })
 
 afterAll(() => {
   mongoose.connection.close()
+})
+
+test('id as blog identifier', async () => {
+  const response = await api.get('/api/blogs')
+
+  expect(response.body[0].id).toBeDefined()
 })
