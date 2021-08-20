@@ -1,6 +1,10 @@
+const { env } = require('./config')
+
 class Logger {
   info (message) {
-    console.log('[INFO] -', message)
+    if (env !== 'test') {
+      console.log('[INFO] -', message)
+    }
   }
 
   error (error) {
