@@ -37,4 +37,23 @@ blogsRouter.delete('/:id', async (request, response) => {
   response.status(200).json(result)
 })
 
+blogsRouter.put('/:id', async (request, response) => {
+  const newData = request.body
+  const id = request.params.id
+
+  if (Object.keys(newData).length === 0) {
+    response.status(400).json({ error: 'the body is empty' })
+    return
+  }
+
+  if (!isIdValid(id)) {
+    response.status(400).json({ error: 'invalid id' })
+    return
+  }
+
+  const result = await Blog.findByIdAndUpdate(id, newData, { new: true })
+
+  response.status(200).json(result)
+})
+
 module.exports = blogsRouter

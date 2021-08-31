@@ -46,94 +46,141 @@ beforeEach(async () => {
   }
 })
 
-test('correct number of notes', async () => {
-  const response = await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('content-Type', /application\/json/)
+describe('blog get methods', () => {
+  test('correct number of notes', async () => {
+    const response = await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('content-Type', /application\/json/)
 
-  expect(response.body).toHaveLength(initialBlogs.length)
-})
-
-test('id as blog identifier', async () => {
-  const response = await api.get('/api/blogs')
-
-  expect(response.body[0].id).toBeDefined()
-})
-
-test('make post add a blog', async () => {
-  const postData = {
-    title: 'this is a test blog',
-    author: 'juan carrero',
-    likes: 0
-  }
-
-  const postResponse = await api
-    .post('/api/blogs')
-    .send(postData)
-    .expect(201)
-
-  const getResponse = await api
-    .get('/api/blogs')
-
-  const getResponseData = getResponse.body.map(item => {
-    return item.title
+    expect(response.body).toHaveLength(initialBlogs.length)
   })
 
-  expect(postResponse.body.title).toBe(postData.title)
-  expect(getResponseData).toContain(postData.title)
+  test('id as blog identifier', async () => {
+    const response = await api.get('/api/blogs')
+
+    expect(response.body[0].id).toBeDefined()
+  })
 })
 
-test('post request -> default likes 0', async () => {
-  const postData = {
-    title: 'test post without likes',
-    author: 'juan carrero'
-  }
+describe('blog post methods', () => {
+  test('make post add a blog', async () => {
+    const postData = {
+      title: 'this is a test blog',
+      author: 'juan carrero',
+      likes: 0
+    }
 
-  const response = await api
-    .post('/api/blogs')
-    .send(postData)
-    .expect(201)
+    const postResponse = await api
+      .post('/api/blogs')
+      .send(postData)
+      .expect(201)
 
-  expect(response.body.likes).toBe(0)
+    const getResponse = await api
+      .get('/api/blogs')
+
+    const getResponseData = getResponse.body.map(item => {
+      return item.title
+    })
+
+    expect(postResponse.body.title).toBe(postData.title)
+    expect(getResponseData).toContain(postData.title)
+  })
+
+  test('post request -> default likes 0', async () => {
+    const postData = {
+      title: 'test post without likes',
+      author: 'juan carrero'
+    }
+
+    const response = await api
+      .post('/api/blogs')
+      .send(postData)
+      .expect(201)
+
+    expect(response.body.likes).toBe(0)
+  })
+
+  test('status 400 on post without data', async () => {
+    const postData = {
+      author: 'juan carrero',
+      likes: 2
+    }
+    await api
+      .post('/api/blogs')
+      .send(postData)
+      .expect(400)
+
+    const getResponse = await api.get('/api/blogs')
+
+    expect(getResponse.body).toHaveLength(initialBlogs.length)
+  })
 })
 
-test('status 400 on post without data', async () => {
-  const postData = {
-    author: 'juan carrero',
-    likes: 2
-  }
-  await api
-    .post('/api/blogs')
-    .send(postData)
-    .expect(400)
+describe('blog delete methods', () => {
+  test('delete post successfully', async () => {
+    const blogs = await api.get('/api/blogs')
+    const deleteItem = blogs.body[0]
 
-  const getResponse = await api.get('/api/blogs')
+    const deleteResponse = await api
+      .delete(`/api/blogs/${deleteItem.id}`)
+      .expect(200)
 
-  expect(getResponse.body).toHaveLength(initialBlogs.length)
+    expect(deleteItem).toMatchObject(deleteResponse.body)
+
+    const getResponse = await api.get('/api/blogs')
+
+    expect(getResponse.body).toHaveLength(blogs.body.length - 1)
+  })
+
+  test('error when trying to delete with invalid id', async () => {
+    const deleteResponse = await api
+      .delete('/api/blogs/kfnsjdfn')
+      .expect(400)
+
+    expect(deleteResponse.body.error).toBe('invalid id')
+  })
 })
 
-test('delete post successfully', async () => {
-  const blogs = await api.get('/api/blogs')
-  const deleteItem = blogs.body[0]
+describe('blogs put methods', () => {
+  test('object updated correctly', async () => {
+    const newData = {
+      likes: 10
+    }
 
-  const deleteResponse = await api
-    .delete(`/api/blogs/${deleteItem.id}`)
-    .expect(200)
+    const initialBlogs = await api.get('/api/blogs')
+    const itemToUpdate = initialBlogs.body[0]
 
-  expect(deleteItem).toMatchObject(deleteResponse.body)
+    await api
+      .put(`/api/blogs/${itemToUpdate.id}`)
+      .send(newData)
+      .expect(200)
 
-  const getResponse = await api.get('/api/blogs')
+    const Updatedblogs = await api.get('/api/blogs')
+    const updatedItem = Updatedblogs.body[0]
 
-  expect(getResponse.body).toHaveLength(blogs.body.length - 1)
-})
+    expect(updatedItem.likes).toBe(newData.likes)
+  })
 
-test('error when trying to delete with invalid id', async () => {
-  const deleteResponse = await api
-    .delete('/api/blogs/kfnsjdfn')
-    .expect(400)
+  test('error when the body is empty', async () => {
+    const initialBlogs = await api.get('/api/blogs')
 
-  expect(deleteResponse.body.error).toBe('invalid id')
+    const response = await api
+      .put(`/api/blogs/${initialBlogs.body[0].id}`)
+      .send({})
+      .expect(400)
+
+    expect(response.body.error).toBe('the body is empty')
+  })
+
+  test('error when the id is invalid', async () => {
+    const response = await api
+      .put('/api/blogs/ndkjasdn')
+      .send({ likes: 500 })
+      .expect(400)
+
+    expect(response.body.error).toBe('invalid id')
+  })
 })
 
 afterAll(() => {
