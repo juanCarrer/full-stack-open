@@ -55,10 +55,6 @@ test('correct number of notes', async () => {
   expect(response.body).toHaveLength(initialBlogs.length)
 })
 
-afterAll(() => {
-  mongoose.connection.close()
-})
-
 test('id as blog identifier', async () => {
   const response = await api.get('/api/blogs')
 
@@ -86,4 +82,22 @@ test('make post add a blog', async () => {
 
   expect(postResponse.body.title).toBe(postData.title)
   expect(getResponseData).toContain(postData.title)
+})
+
+test('post request -> default likes 0', async () => {
+  const postData = {
+    title: 'test post without likes',
+    author: 'juan carrero'
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(postData)
+    .expect(201)
+
+  expect(response.body.likes).toBe(0)
+})
+
+afterAll(() => {
+  mongoose.connection.close()
 })
