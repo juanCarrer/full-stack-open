@@ -113,6 +113,29 @@ test('status 400 on post without data', async () => {
   expect(getResponse.body).toHaveLength(initialBlogs.length)
 })
 
+test('delete post successfully', async () => {
+  const blogs = await api.get('/api/blogs')
+  const deleteItem = blogs.body[0]
+
+  const deleteResponse = await api
+    .delete(`/api/blogs/${deleteItem.id}`)
+    .expect(200)
+
+  expect(deleteItem).toMatchObject(deleteResponse.body)
+
+  const getResponse = await api.get('/api/blogs')
+
+  expect(getResponse.body).toHaveLength(blogs.body.length - 1)
+})
+
+test('error when trying to delete with invalid id', async () => {
+  const deleteResponse = await api
+    .delete('/api/blogs/kfnsjdfn')
+    .expect(400)
+
+  expect(deleteResponse.body.error).toBe('invalid id')
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
