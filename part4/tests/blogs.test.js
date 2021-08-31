@@ -98,6 +98,21 @@ test('post request -> default likes 0', async () => {
   expect(response.body.likes).toBe(0)
 })
 
+test('status 400 on post without data', async () => {
+  const postData = {
+    author: 'juan carrero',
+    likes: 2
+  }
+  await api
+    .post('/api/blogs')
+    .send(postData)
+    .expect(400)
+
+  const getResponse = await api.get('/api/blogs')
+
+  expect(getResponse.body).toHaveLength(initialBlogs.length)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
