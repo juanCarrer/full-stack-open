@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const blogsRouter = require('./controllers/blogs')
+const userRouter = require('./controllers/users')
 const Logger = require('./utils/logger')
 const { unknownEndpoint, errorHandler } = require('./utils/middelware')
 
@@ -21,6 +22,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', userRouter)
 
 app.use(unknownEndpoint)
 app.use(errorHandler)
@@ -29,4 +31,4 @@ const server = app.listen(PORT, () => {
   Logger.info(`Server running on port ${PORT}`)
 })
 
-module.exports = server
+module.exports = { app, server }

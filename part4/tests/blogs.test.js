@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
-const app = require('../index.js')
+const { app, server } = require('../index.js')
 const Blog = require('../models/blogs')
 const api = supertest(app)
 
@@ -184,5 +184,6 @@ describe('blogs put methods', () => {
 })
 
 afterAll(() => {
+  server.close()
   mongoose.connection.close()
 })
