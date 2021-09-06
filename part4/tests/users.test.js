@@ -56,6 +56,17 @@ describe('users tests', () => {
     expect(usernames).toContain(newUserData.userName)
     expect(allusers.body).toHaveLength(initialUsers.length + 1)
   })
+
+  test('user post fail on empty body', async () => {
+    const userData = {}
+
+    const errorMessage = await api
+      .post('/api/users')
+      .send(userData)
+      .expect(400)
+
+    expect(errorMessage.body.error).toBe('userName and passwords required')
+  })
 })
 
 afterAll(() => {
