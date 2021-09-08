@@ -1,21 +1,44 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blogs')
+const User = require('../models/users')
 const isIdValid = require('mongoose').Types.ObjectId.isValid
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({})
+  const blogs = await Blog.find({}).populate('user', {
+    userName: 1,
+    name: 1,
+    id: 1
+  })
   response.json(blogs)
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+  const { body } = request
+  const { title, userId, likes = 0, url, author } = body
 
-  if (!blog.title) {
+  if (!userId) {
+    response.status(400).json({ error: 'userId is required' })
+  }
+
+  if (!title) {
     response.status(400).json({ error: 'the title is required' })
     return
   }
 
-  blog.likes ?? (blog.likes = 0)
+  const NewBlogData = {
+    title,
+    user: userId,
+    likes,
+    url,
+    author
+  }
+
+  const blog = new Blog(NewBlogData)
+
+  const user = await User.findById(userId)
+
+  user.blogs = user.blogs.concat(blog._id)
+  await user.save()
 
   const result = await blog.save()
   response.status(201).json(result)

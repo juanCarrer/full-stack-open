@@ -26,12 +26,18 @@ usersRouter.post('/', async (request, response) => {
   }
 
   const newUser = new User(userData)
+
   const createdUser = await newUser.save()
   response.status(201).json(createdUser)
 })
 
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  const users = await User.find({}).populate('blogs', {
+    title: 1,
+    url: 1,
+    author: 1,
+    id: 1
+  })
   response.status(200).json(users)
 })
 
