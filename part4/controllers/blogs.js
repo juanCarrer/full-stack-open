@@ -1,8 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blogs')
 const User = require('../models/users')
-const jwt = require('jsonwebtoken')
-const { secret } = require('../utils/config')
 const isIdValid = require('mongoose').Types.ObjectId.isValid
 
 blogsRouter.get('/', async (request, response) => {
@@ -14,21 +12,10 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response, next) => {
-  const { authorization } = request.headers
+blogsRouter.post('/', async (request, response) => {
+  const userData = request.token
   const { body } = request
   const { title, likes = 0, url, author } = body
-  let token = null
-  if (authorization.toLocaleLowerCase().startsWith('bearer')) {
-    token = authorization.substring(7)
-  }
-
-  let userData = null
-  try {
-    userData = jwt.verify(token, secret)
-  } catch (error) {
-    return next(error)
-  }
 
   if (!title) {
     return response.status(400).json({ error: 'the title is required' })

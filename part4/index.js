@@ -7,7 +7,7 @@ const blogsRouter = require('./controllers/blogs')
 const userRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
 const Logger = require('./utils/logger')
-const { unknownEndpoint, errorHandler } = require('./utils/middelware')
+const { unknownEndpoint, errorHandler, tokenExtractor } = require('./utils/middelware')
 
 const { mongoURL, PORT = 3001 } = config
 
@@ -22,9 +22,10 @@ mongoose.connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true, us
 app.use(cors())
 app.use(express.json())
 
+app.use('/api/login', loginRouter)
+app.use(tokenExtractor)
 app.use('/api/blogs', blogsRouter)
 app.use('/api/users', userRouter)
-app.use('/api/login', loginRouter)
 
 app.use(unknownEndpoint)
 app.use(errorHandler)
