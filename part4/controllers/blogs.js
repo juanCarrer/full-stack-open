@@ -1,6 +1,8 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blogs')
 const User = require('../models/users')
+const jwt = require('jsonwebtoken')
+const { secret } = require('../utils/config')
 const isIdValid = require('mongoose').Types.ObjectId.isValid
 
 blogsRouter.get('/', async (request, response) => {
@@ -12,22 +14,29 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', async (request, response, next) => {
+  const { authorization } = request.headers
   const { body } = request
-  const { title, userId, likes = 0, url, author } = body
+  const { title, likes = 0, url, author } = body
+  let token = null
+  if (authorization.toLocaleLowerCase().startsWith('bearer')) {
+    token = authorization.substring(7)
+  }
 
-  if (!userId) {
-    response.status(400).json({ error: 'userId is required' })
+  let userData = null
+  try {
+    userData = jwt.verify(token, secret)
+  } catch (error) {
+    return next(error)
   }
 
   if (!title) {
-    response.status(400).json({ error: 'the title is required' })
-    return
+    return response.status(400).json({ error: 'the title is required' })
   }
 
   const NewBlogData = {
     title,
-    user: userId,
+    user: userData.id,
     likes,
     url,
     author
@@ -35,7 +44,7 @@ blogsRouter.post('/', async (request, response) => {
 
   const blog = new Blog(NewBlogData)
 
-  const user = await User.findById(userId)
+  const user = await User.findById(NewBlogData.user)
 
   user.blogs = user.blogs.concat(blog._id)
   await user.save()

@@ -13,15 +13,26 @@ const unknownEndpoint = (request, response) => {
 }
 
 const errorHandler = (error, request, response, next) => {
-  Logger.error(error.message)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
-    return response.status(400).json({ error: error.message })
+  const ERRORS = {
+    JsonWebTokenError: (response) => {
+      return response.status(401).json({ error: 'authorization token malformed or invalid' })
+    },
+    CastError: (response) => {
+      return response.status(400).send({ error: 'malformatted id' })
+    },
+    ValidationError: (response) => {
+      return response.status(400).json({ error: error.message })
+    },
+    defaultError: (response) => {
+      return response.status(500).end()
+    }
   }
 
-  next(error)
+  Logger.error(error.message)
+
+  const handler = ERRORS[error.name] || ERRORS.defaultError
+
+  handler(response)
 }
 
 module.exports = {
