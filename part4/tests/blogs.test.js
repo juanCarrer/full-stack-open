@@ -2,7 +2,11 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const { app, server } = require('../index.js')
 const Blog = require('../models/blogs')
+const User = require('../models/users')
 const api = supertest(app)
+const bcrypt = require('bcrypt')
+const { secret } = require('../utils/config')
+const jwt = require('jsonwebtoken')
 
 const initialBlogs = [
   {
@@ -37,13 +41,49 @@ const initialBlogs = [
   }
 ]
 
+const INITIAL_USER = {
+  userName: 'testUser',
+  name: 'test user',
+  password: 'test123'
+}
+
+let TOKEN = null
+let INITIAL_USER_MODEL = null
+
+beforeAll(async () => {
+  await User.deleteMany({})
+
+  const saltOrRounds = 10
+  const passwordHash = await bcrypt.hash(INITIAL_USER.password, saltOrRounds)
+  const initialUser = new User({
+    name: INITIAL_USER.name,
+    userName: INITIAL_USER.userName,
+    passwordHash
+  })
+
+  INITIAL_USER_MODEL = initialUser
+  initialUser.save()
+
+  const tokenPayload = {
+    id: initialUser._id,
+    userName: INITIAL_USER.userName
+  }
+
+  TOKEN = jwt.sign(tokenPayload, secret)
+})
+
 beforeEach(async () => {
   await Blog.deleteMany({})
 
+  const user = INITIAL_USER_MODEL
+
   for (const blogData of initialBlogs) {
-    const blog = new Blog(blogData)
+    const blog = new Blog({ ...blogData, user: INITIAL_USER_MODEL._id })
+
+    user.blogs = user.blogs.concat(blog._id)
     await blog.save()
   }
+  await user.save()
 })
 
 describe('blog get methods', () => {
@@ -73,6 +113,7 @@ describe('blog post methods', () => {
 
     const postResponse = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send(postData)
       .expect(201)
 
@@ -95,6 +136,7 @@ describe('blog post methods', () => {
 
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send(postData)
       .expect(201)
 
@@ -108,6 +150,7 @@ describe('blog post methods', () => {
     }
     await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${TOKEN}`)
       .send(postData)
       .expect(400)
 
@@ -115,15 +158,30 @@ describe('blog post methods', () => {
 
     expect(getResponse.body).toHaveLength(initialBlogs.length)
   })
+
+  test('status 401 on post whithout authorization', async () => {
+    const postData = {
+      title: 'this is a test blog',
+      author: 'juan carrero',
+      likes: 0
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(postData)
+      .expect(401)
+  })
 })
 
 describe('blog delete methods', () => {
   test('delete post successfully', async () => {
     const blogs = await api.get('/api/blogs')
     const deleteItem = blogs.body[0]
+    deleteItem.user = deleteItem.user.id
 
     const deleteResponse = await api
       .delete(`/api/blogs/${deleteItem.id}`)
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(200)
 
     expect(deleteItem).toMatchObject(deleteResponse.body)
@@ -136,9 +194,10 @@ describe('blog delete methods', () => {
   test('error when trying to delete with invalid id', async () => {
     const deleteResponse = await api
       .delete('/api/blogs/kfnsjdfn')
+      .set('Authorization', `Bearer ${TOKEN}`)
       .expect(400)
 
-    expect(deleteResponse.body.error).toBe('invalid id')
+    expect(deleteResponse.body.error).toBe('invalid or missing id')
   })
 })
 

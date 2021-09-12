@@ -17,6 +17,10 @@ blogsRouter.post('/', async (request, response) => {
   const { body } = request
   const { title, likes = 0, url, author } = body
 
+  if (userData.error) {
+    return response.status(401).json(userData)
+  }
+
   if (!title) {
     return response.status(400).json({ error: 'the title is required' })
   }
@@ -43,6 +47,10 @@ blogsRouter.post('/', async (request, response) => {
 blogsRouter.delete('/:id', async (request, response) => {
   const blogId = request.params.id
   const userData = request.token
+
+  if (userData.error) {
+    return response.status(401).json(userData)
+  }
 
   if (!isIdValid(blogId) || !blogId) {
     return response.status(400).json({ error: 'invalid or missing id' })

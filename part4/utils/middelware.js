@@ -18,22 +18,23 @@ const tokenExtractor = (request, response, next) => {
   const { authorization } = request.headers
 
   if (!authorization) {
-    return response.status(501).json({ error: 'auhorization required' })
-  }
+    // return response.status(501).json({ error: 'auhorization required' })
+    request.token = { error: 'auhorization required' }
+  } else {
+    let tokenString = null
+    if (authorization.toLocaleLowerCase().startsWith('bearer')) {
+      tokenString = authorization.substring(7)
+    }
 
-  let tokenString = null
-  if (authorization.toLocaleLowerCase().startsWith('bearer')) {
-    tokenString = authorization.substring(7)
-  }
+    let token = null
+    try {
+      token = jwt.verify(tokenString, secret)
+    } catch (error) {
+      return next(error)
+    }
 
-  let token = null
-  try {
-    token = jwt.verify(tokenString, secret)
-  } catch (error) {
-    return next(error)
+    request.token = token
   }
-
-  request.token = token
 
   next()
 }
