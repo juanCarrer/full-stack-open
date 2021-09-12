@@ -41,17 +41,24 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const id = request.params.id
-  if (!id) {
-    response.status(400).json({ error: 'missing id' })
-    return
-  }
-  if (!isIdValid(id)) {
-    response.status(400).json({ error: 'invalid id' })
-    return
+  const blogId = request.params.id
+  const userData = request.token
+
+  if (!isIdValid(blogId) || !blogId) {
+    return response.status(400).json({ error: 'invalid or missing id' })
   }
 
-  const result = await Blog.findByIdAndDelete(id)
+  const blog = await Blog.findById(blogId)
+
+  if (!blog) {
+    return response.status(400).json({ error: 'blog not found' })
+  }
+
+  if (blog.user.toString() !== userData.id.toString()) {
+    return response.status(401).json({ error: 'blogs can only be deleted by their owner' })
+  }
+
+  const result = await Blog.findByIdAndDelete(blogId)
 
   response.status(200).json(result)
 })

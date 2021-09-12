@@ -17,6 +17,10 @@ const unknownEndpoint = (request, response) => {
 const tokenExtractor = (request, response, next) => {
   const { authorization } = request.headers
 
+  if (!authorization) {
+    return response.status(501).json({ error: 'auhorization required' })
+  }
+
   let tokenString = null
   if (authorization.toLocaleLowerCase().startsWith('bearer')) {
     tokenString = authorization.substring(7)
