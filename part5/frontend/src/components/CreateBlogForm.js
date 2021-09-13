@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import blogService from '../services/blogs'
 
-export const CreateBlogForm = ({ onNewpost }) => {
+export const CreateBlogForm = ({ onNewpost, setNotification }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [likes, setLikes] = useState('')
   const [url, setUrl] = useState('')
-  const [notification, setNotification] = useState('') 
 
   const handleCreatePost = async (event) => {
     event.preventDefault()
@@ -19,12 +18,9 @@ export const CreateBlogForm = ({ onNewpost }) => {
       })
 
       onNewpost(newBlog)
-
+      setNotification('new blog added')
     } catch (error) {
-      setNotification(error.message)
-      setTimeout(() => {
-        setNotification('')
-      }, 5000)
+      setNotification(error.message, true)
     }
   }
 
@@ -66,7 +62,6 @@ export const CreateBlogForm = ({ onNewpost }) => {
         <br />
         <button>create</button>
       </form>
-      <p>{notification}</p>
     </div>
   )
 }

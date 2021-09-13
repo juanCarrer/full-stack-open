@@ -1,21 +1,18 @@
 import React, { useState } from 'react'
 import loginService from '../services/login'
 
-export const LoginForm = ({ handleLoginUser }) => {
+export const LoginForm = ({ handleLoginUser, setNotification }) => {
   const [userName, setUserName] = useState('')
   const [password, setPassword] = useState('')
-  const [notification, setNotification] = useState('')
 
   const handleSubmit = async (event) => {
     event.preventDefault()
     try {
       const user = await loginService(userName, password)
+      setNotification(`welcome ${userName}`)
       handleLoginUser(user)
     } catch (error) {
-      setNotification('invalid username or password')
-      setTimeout(() => {
-        setNotification('')
-      }, 5000)
+      setNotification('invalid username or password', true)
     }
   }
   
@@ -41,7 +38,6 @@ export const LoginForm = ({ handleLoginUser }) => {
         <br />
         <button>login</button>
       </form>
-      <p>{notification}</p>
     </div>
   )
 }

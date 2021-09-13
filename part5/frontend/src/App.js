@@ -2,9 +2,18 @@ import React, { useState, useEffect } from 'react'
 import { ListOfBlogs } from './components/ListOfBlogs'
 import { LoginForm } from './components/LoginForm'
 import blogService from './services/blogs'
+import './App.css'
 
 const App = () => {
+  const [notification, setNotification] = useState('')
   const [user, setUser] = useState(null)
+
+  const newNotification = (message, error = false) => {
+    setNotification({message, error})
+    setTimeout(() => {
+      setNotification('')
+    }, 5000)
+  }
 
   useEffect(() => {
     const userDataJSON = window.localStorage.getItem('user-blogAplication')
@@ -28,9 +37,22 @@ const App = () => {
   }
 
   return (
-    user
-      ? <ListOfBlogs user={user} handleLogOut={handleDeleteUser}/>
-      : <LoginForm handleLoginUser={handleUpdateUser} />
+    <div>
+      {
+        notification && (
+          <h1
+            className={`mainNotification ${notification.error ? 'mainNotification--error' : ''}`}
+          >
+            {notification.message}
+          </h1>
+        )
+      }
+    {
+      user 
+        ? <ListOfBlogs user={user} handleLogOut={handleDeleteUser} setNotification={newNotification}/>
+        : <LoginForm handleLoginUser={handleUpdateUser} setNotification={newNotification}/>
+    }
+    </div>
   )
 }
 

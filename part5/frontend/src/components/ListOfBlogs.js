@@ -3,9 +3,8 @@ import blogService from '../services/blogs'
 import Blog from './Blog'
 import { CreateBlogForm } from './CreateBlogForm';
 
-export const ListOfBlogs = ({ user, handleLogOut }) => {
+export const ListOfBlogs = ({ user, handleLogOut, setNotification }) => {
   const [blogs, setBlogs] = useState([])
-  console.log(blogs)
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
@@ -13,7 +12,7 @@ export const ListOfBlogs = ({ user, handleLogOut }) => {
   }, [])
 
   const handleAddNewBlog = (newBlog) => {
-    setBlogs([...blogs, newBlog])
+    setBlogs([...blogs, {title: newBlog.title, user: {userName: user.userName }}])
   }
 
   return (
@@ -23,7 +22,7 @@ export const ListOfBlogs = ({ user, handleLogOut }) => {
         <h2>{user.userName} logged in</h2>
         <button onClick={handleLogOut}>logout</button>
       </div>
-      <CreateBlogForm onNewpost={handleAddNewBlog} />
+      <CreateBlogForm onNewpost={handleAddNewBlog} setNotification={setNotification}/>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
